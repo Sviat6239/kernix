@@ -1,14 +1,20 @@
-.PHONY: all clean
+.PHONY: all clean run
 
 TARGET = kernix.bin
 KERNEL_ELF = kernel.elf
 
 # Tools
-CC = i686-elf-gcc
-CXX = i686-elf-g++
-LD = i686-elf-ld
+ifeq ($(shell command -v i686-elf-g++ >/dev/null 2>&1; echo $$?),0)
+TOOLCHAIN_PREFIX = i686-elf-
+else
+TOOLCHAIN_PREFIX =
+endif
+
+CC = $(TOOLCHAIN_PREFIX)gcc
+CXX = $(TOOLCHAIN_PREFIX)g++
+LD = $(TOOLCHAIN_PREFIX)ld
 NASM = nasm
-OBJCOPY = i686-elf-objcopy
+OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
 
 # Flags
 CXXFLAGS = -ffreestanding -fno-exceptions -fno-rtti -Wall -Wextra -std=c++17 -m32
@@ -37,6 +43,5 @@ clean:
 	rm -f $(OBJS) $(KERNEL_ELF) $(TARGET)
 	@echo "Cleaned up build artifacts"
 
-run: $(TARGET)
-	@echo "To run with QEMU:"
-	@echo "  qemu-system-i386 -kernel $(TARGET)"
+run: $(KERNEL_ELF)
+	qemu-system-i386 -kernel $(KERNEL_ELF)

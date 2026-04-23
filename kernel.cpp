@@ -2,7 +2,8 @@
 #error "This file must be compiled as C++"
 #endif
 
-#include <cstdint>
+using uint8_t = unsigned char;
+using uint16_t = unsigned short;
 
 // VGA Buffer
 #define VGA_BUFFER 0xB8000
