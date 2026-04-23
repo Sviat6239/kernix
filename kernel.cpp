@@ -68,6 +68,10 @@ VGABuffer vga_buffer;
 
 extern "C" void kernel_main()
 {
+    vga_buffer.buffer = (volatile uint8_t *)VGA_BUFFER;
+    vga_buffer.x = 0;
+    vga_buffer.y = 0;
+
     vga_buffer.clear();
     vga_buffer.print("=== Kernix v0.1 ===\n");
     vga_buffer.print("Kernel loaded successfully!\n");
