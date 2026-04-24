@@ -58,7 +58,7 @@ void shell_handle_input(char *input)
         ksys_print("mem - Show allocator status\n");
         ksys_print("panic - Trigger a test exception\n");
         ksys_print("echo <text> - Echo text\n");
-        ksys_print("calc - Simple calculator (usage: calc <num1> <op> <num2>)\n");
+        ksys_print("calc - Simple calculator (usage: calc <num1> <op> <num2>, calc help)\n");
     }
     else if (strcmp(command, "clear") == 0)
     {
