@@ -2,6 +2,8 @@
 
 A minimal 32-bit C++ kernel with a simple VGA text interface.
 
+Current kernel banner/version in runtime: `Kernix v0.4`.
+
 ## Build Requirements
 - `nasm`
 - Cross-toolchain `i686-elf-*` is recommended (`gcc`, `g++`, `ld`, `objcopy`)
@@ -24,9 +26,11 @@ make run
 
 ## Structure
 - `kernel_entry.asm` - `_start` entry point, multiboot header, stack setup, `.bss` clear, call to `kernel_main`
-- `kernel.cpp` - main kernel loop and simple command interface
+- `kernel.cpp` - kernel initialization and simple command interface
 - `modules/vga_buffer.*` - VGA text output (80x25)
-- `modules/keyboard.*` - keyboard polling via ports `0x60/0x64`, character buffer, Shift support
+- `modules/keyboard.*` - keyboard scancode decode, character ring buffer, Shift support
+- `modules/interrupts.*` - IDT setup, PIC remap, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
+- `modules/interrupts_entry.asm` - IRQ assembly stubs (`irq0_stub`, `irq1_stub`)
 - `modules/string.*` - `strcmp` and space search in a string
 - `linker.ld` - links kernel at base address `0x100000`
 - `Makefile` - build and run rules
@@ -35,7 +39,15 @@ make run
 - Boot via multiboot header into 32-bit mode (`_start` entry)
 - Stack initialization and `.bss` clearing
 - Basic VGA output: character/string printing, newline, screen clear, backspace
-- Keyboard input (polling without interrupts), input buffering, Shift support
+- Interrupt subsystem basics:
+	- IDT with 256 entries
+	- `lidt` load of IDT descriptor
+	- PIC remap (`IRQ0 -> 32`, `IRQ1 -> 33`)
+	- `sti` to enable hardware interrupts
+- IRQ handlers:
+	- `IRQ0` timer increments `ticks`
+	- `IRQ1` keyboard reads scancode from port `0x60`
+- Keyboard input via interrupt-driven buffering (no polling path), with Shift support
 - Simple command console:
 	- `help`
 	- `clear`
@@ -45,8 +57,9 @@ make run
 
 ## What Is Missing
 - No separate 16-bit bootloader file (`boot.asm`) and no disk loading path
-- No IDT/IRQ and interrupt handling (keyboard works via polling)
-- No timer (PIT), scheduler, or multitasking
+- No CPU exception handlers (e.g. divide-by-zero/page fault diagnostics)
+- No PIT programming yet (timer IRQ is handled, but PIT frequency/configuration is not set explicitly)
+- No scheduler or multitasking
 - No memory manager (paging/heap/allocator)
 - No user mode or system calls
 - No filesystem and no device drivers beyond basic keyboard input
