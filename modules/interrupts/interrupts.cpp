@@ -24,6 +24,9 @@
 
 #define IRQ0_VECTOR 32
 #define IRQ1_VECTOR 33
+#define EXC_DIVIDE_BY_ZERO_VECTOR 0
+#define EXC_GENERAL_PROTECTION_VECTOR 13
+#define EXC_PAGE_FAULT_VECTOR 14
 
 struct __attribute__((packed)) idt_entry
 {
@@ -46,6 +49,9 @@ static volatile uint32_t g_ticks = 0;
 
 extern "C" void irq0_stub();
 extern "C" void irq1_stub();
+extern "C" void isr0_stub();
+extern "C" void isr13_stub();
+extern "C" void isr14_stub();
 
 static inline void outb(uint16_t port, uint8_t value)
 {
@@ -62,6 +68,26 @@ static inline uint8_t inb(uint16_t port)
 static inline void io_wait()
 {
     outb(0x80, 0);
+}
+
+static void print_hex32(uint32_t value)
+{
+    static const char *HEX = "0123456789ABCDEF";
+    vga_buffer.print("0x");
+
+    for (int shift = 28; shift >= 0; shift -= 4)
+    {
+        uint8_t nibble = static_cast<uint8_t>((value >> shift) & 0xF);
+        vga_buffer.putchar(HEX[nibble]);
+    }
+}
+
+[[noreturn]] static void panic_halt()
+{
+    __asm__ volatile("cli");
+
+    while (true)
+        __asm__ volatile("hlt");
 }
 
 static void pit_init(uint32_t frequency_hz)
@@ -131,6 +157,9 @@ void interrupts_init()
     pic_remap(IRQ0_VECTOR, 40);
     pit_init(PIT_TARGET_HZ);
 
+    idt_set_gate(EXC_DIVIDE_BY_ZERO_VECTOR, reinterpret_cast<uint32_t>(isr0_stub));
+    idt_set_gate(EXC_GENERAL_PROTECTION_VECTOR, reinterpret_cast<uint32_t>(isr13_stub));
+    idt_set_gate(EXC_PAGE_FAULT_VECTOR, reinterpret_cast<uint32_t>(isr14_stub));
     idt_set_gate(IRQ0_VECTOR, reinterpret_cast<uint32_t>(irq0_stub));
     idt_set_gate(IRQ1_VECTOR, reinterpret_cast<uint32_t>(irq1_stub));
 
@@ -145,6 +174,43 @@ void interrupts_enable()
 uint32_t interrupts_get_ticks()
 {
     return g_ticks;
+}
+
+extern "C" void cpu_exception_handler(uint32_t vector, uint32_t error_code)
+{
+    vga_buffer.print("\n\n*** CPU EXCEPTION ***\n");
+
+    if (vector == EXC_DIVIDE_BY_ZERO_VECTOR)
+    {
+        vga_buffer.print("Type: Divide by zero (#DE)\n");
+    }
+    else if (vector == EXC_GENERAL_PROTECTION_VECTOR)
+    {
+        vga_buffer.print("Type: General protection fault (#GP)\n");
+        vga_buffer.print("Error code: ");
+        print_hex32(error_code);
+        vga_buffer.putchar('\n');
+    }
+    else if (vector == EXC_PAGE_FAULT_VECTOR)
+    {
+        uint32_t fault_address;
+        __asm__ volatile("mov %%cr2, %0" : "=r"(fault_address));
+
+        vga_buffer.print("Type: Page fault (#PF)\n");
+        vga_buffer.print("Address (CR2): ");
+        print_hex32(fault_address);
+        vga_buffer.putchar('\n');
+        vga_buffer.print("Error code: ");
+        print_hex32(error_code);
+        vga_buffer.putchar('\n');
+    }
+    else
+    {
+        vga_buffer.print("Type: Unknown exception\n");
+    }
+
+    vga_buffer.print("System halted.\n");
+    panic_halt();
 }
 
 extern "C" void irq0_handler()

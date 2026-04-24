@@ -85,7 +85,7 @@ extern "C" void kernel_main()
             }
             else if (strcmp(command, "version") == 0)
             {
-                vga_buffer.print("Kenel v0.0.4\n");
+                vga_buffer.print("Kenel v0.0.5\n");
                 vga_buffer.print("Shell v0.0.1\n");
             }
             else if (strcmp(command, "ticks") == 0)
@@ -102,8 +102,14 @@ extern "C" void kernel_main()
             }
             else if (strcmp(command, "panic") == 0)
             {
-                vga_buffer.print("Triggering test exception...\n");
-                __asm__ volatile("ud2");
+                vga_buffer.print("Triggering divide-by-zero exception...\n");
+                __asm__ volatile(
+                    "xor %%edx, %%edx\n\t"
+                    "mov $1, %%eax\n\t"
+                    "div %%edx\n\t"
+                    :
+                    :
+                    : "eax", "edx");
             }
             else if (strcmp(command, "echo") == 0)
             {

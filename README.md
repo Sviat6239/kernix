@@ -2,7 +2,7 @@
 
 A minimal 32-bit C++ kernel with a simple VGA text interface.
 
-Current kernel banner/version in runtime: `Kernix v0.4`.
+Current kernel banner/version in runtime: `Kernix v0.0.4`.
 
 ## Build Requirements
 - `nasm`
@@ -29,24 +29,34 @@ make run
 - `kernel.cpp` - kernel initialization and simple command interface
 - `modules/vga_buffer/vga_buffer.*` - VGA text output (80x25)
 - `modules/keyboard/keyboard.*` - keyboard scancode decode, character ring buffer, Shift support
-- `modules/interrupts/interrupts.*` - IDT setup, PIC remap, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
-- `modules/interrupts/interrupts_entry.asm` - IRQ assembly stubs (`irq0_stub`, `irq1_stub`)
+- `modules/interrupts/interrupts.*` - IDT setup, PIC remap, CPU exception handling, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
+- `modules/interrupts/interrupts_entry.asm` - ISR/IRQ assembly stubs (`isr0_stub`, `isr13_stub`, `isr14_stub`, `irq0_stub`, `irq1_stub`)
 - `modules/memory/memory.*` - paging setup (4MB identity map) and simple `kmalloc` bump allocator
 - `modules/string/string.*` - `strcmp` and space search in a string
 - `modules/auth/auth.*` - auth module placeholder
 - `modules/shell/shell.*` - shell module placeholder
+- `modules/syscalls/*` - syscall module placeholder
 - `linker.ld` - links kernel at base address `0x100000`
 - `Makefile` - build and run rules
 
 ## What Is Already Implemented
 - Boot via multiboot header into 32-bit mode (`_start` entry)
 - Stack initialization and `.bss` clearing
-- Basic VGA output: character/string printing, newline, screen clear, backspace
+- VGA text output subsystem:
+	- character/string printing, newline, screen clear, backspace
+	- automatic scrolling when reaching bottom line (buffer shifts up, last row is cleared)
+	- hardware cursor synchronization with text position and periodic blink
 - Interrupt subsystem basics:
 	- IDT with 256 entries
 	- `lidt` load of IDT descriptor
 	- PIC remap (`IRQ0 -> 32`, `IRQ1 -> 33`)
 	- `sti` to enable hardware interrupts
+- CPU exception handlers (minimum set):
+	- Divide by zero (`#DE`, vector 0)
+	- General protection fault (`#GP`, vector 13)
+	- Page fault (`#PF`, vector 14)
+	- For `#PF`, fault address is read from `CR2` and printed with error code
+	- Exception path prints diagnostics and halts CPU (`cli` + `hlt` loop)
 - IRQ handlers:
 	- `IRQ0` timer increments `ticks`
 	- `IRQ1` keyboard reads scancode from port `0x60`
@@ -58,6 +68,7 @@ make run
 	- Page directory + first page table
 	- Identity mapping for first `4 MB`
 	- `kmalloc_init()` and `kmalloc(size)` (bump allocator, no free)
+	- allocator diagnostics: `kmalloc_remaining()`
 - Keyboard input via interrupt-driven buffering (no polling path), with Shift support
 - Keyboard input queue API (FIFO ring buffer):
 	- `bool keyboard_available()`
@@ -67,15 +78,16 @@ make run
 	- `clear`
 	- `about`
 	- `version`
+	- `ticks`
+	- `mem`
+	- `panic` (triggers divide-by-zero for exception test)
 	- `echo <text>`
 
 ## What Is Missing
 - No separate 16-bit bootloader file (`boot.asm`) and no disk loading path
-- No CPU exception handlers (e.g. divide-by-zero/page fault diagnostics)
 - No wall-clock/time API yet (only raw `ticks` counter is available)
 - No scheduler or multitasking
 - No free/allocator metadata in heap manager (only bump allocation)
 - No dynamic mapping beyond the initial 4MB identity map
 - No user mode or system calls
 - No filesystem and no device drivers beyond basic keyboard input
-- No VGA scrolling (when reaching the bottom, cursor stays on the last line)
