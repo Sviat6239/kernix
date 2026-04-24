@@ -8,3 +8,14 @@ int strcmp(const char *a, const char *b)
 
     return *(const unsigned char *)a - *(const unsigned char *)b;
 }
+
+char *find_space(char *str)
+{
+    while (*str)
+    {
+        if (*str == ' ')
+            return str;
+        str++;
+    }
+    return nullptr;
+}
