@@ -47,7 +47,13 @@ make run
 - IRQ handlers:
 	- `IRQ0` timer increments `ticks`
 	- `IRQ1` keyboard reads scancode from port `0x60`
+- PIT initialization for timer base:
+	- Channel 0 configured in mode `0x36`
+	- Frequency set to `100 Hz`
 - Keyboard input via interrupt-driven buffering (no polling path), with Shift support
+- Keyboard input queue API (FIFO ring buffer):
+	- `bool keyboard_available()`
+	- `char keyboard_getchar()`
 - Simple command console:
 	- `help`
 	- `clear`
@@ -58,7 +64,7 @@ make run
 ## What Is Missing
 - No separate 16-bit bootloader file (`boot.asm`) and no disk loading path
 - No CPU exception handlers (e.g. divide-by-zero/page fault diagnostics)
-- No PIT programming yet (timer IRQ is handled, but PIT frequency/configuration is not set explicitly)
+- No wall-clock/time API yet (only raw `ticks` counter is available)
 - No scheduler or multitasking
 - No memory manager (paging/heap/allocator)
 - No user mode or system calls

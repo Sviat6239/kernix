@@ -6,8 +6,9 @@ static char key_buffer[256];
 static int buf_head = 0;
 static int buf_tail = 0;
 static bool shift_pressed = false;
+static bool extended_scancode = false;
 
-static const char scancode_map[128] = {
+static const char keymap[128] = {
     0,
     27,
     '1',
@@ -68,7 +69,7 @@ static const char scancode_map[128] = {
     ' ',
 };
 
-static const char scancode_shift_map[128] = {
+static const char keymap_shift[128] = {
     0,
     27,
     '!',
@@ -151,10 +152,23 @@ void keyboard_init()
     buf_head = 0;
     buf_tail = 0;
     shift_pressed = false;
+    extended_scancode = false;
 }
 
 void keyboard_handle_scancode(uint8_t scancode)
 {
+    if (scancode == 0xE0)
+    {
+        extended_scancode = true;
+        return;
+    }
+
+    if (extended_scancode)
+    {
+        extended_scancode = false;
+        return;
+    }
+
     if (scancode == 0x2A || scancode == 0x36)
     {
         shift_pressed = true;
@@ -170,19 +184,19 @@ void keyboard_handle_scancode(uint8_t scancode)
     if (scancode & 0x80)
         return;
 
-    char c = shift_pressed ? scancode_shift_map[scancode] : scancode_map[scancode];
+    char c = shift_pressed ? keymap_shift[scancode] : keymap[scancode];
     if (c != 0)
         push_char(c);
 }
 
-bool keyboard_has_char()
+bool keyboard_available()
 {
     return buf_head != buf_tail;
 }
 
 char keyboard_getchar()
 {
-    while (!keyboard_has_char())
+    while (!keyboard_available())
         __asm__ volatile("hlt");
 
     return pop_char();

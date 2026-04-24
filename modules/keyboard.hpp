@@ -5,7 +5,7 @@
 
 void keyboard_init();
 void keyboard_handle_scancode(uint8_t scancode);
-bool keyboard_has_char();
+bool keyboard_available();
 char keyboard_getchar();
 
 #endif

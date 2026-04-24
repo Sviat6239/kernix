@@ -5,6 +5,11 @@
 
 #define IDT_ENTRIES 256
 
+#define PIT_COMMAND_PORT 0x43
+#define PIT_CHANNEL0_PORT 0x40
+#define PIT_BASE_FREQUENCY 1193182
+#define PIT_TARGET_HZ 100
+
 #define PIC1_COMMAND 0x20
 #define PIC1_DATA 0x21
 #define PIC2_COMMAND 0xA0
@@ -56,6 +61,14 @@ static inline uint8_t inb(uint16_t port)
 static inline void io_wait()
 {
     outb(0x80, 0);
+}
+
+static void pit_init(uint32_t frequency_hz)
+{
+    uint32_t divisor = PIT_BASE_FREQUENCY / frequency_hz;
+    outb(PIT_COMMAND_PORT, 0x36);
+    outb(PIT_CHANNEL0_PORT, static_cast<uint8_t>(divisor & 0xFF));
+    outb(PIT_CHANNEL0_PORT, static_cast<uint8_t>((divisor >> 8) & 0xFF));
 }
 
 static void idt_set_gate(uint8_t vector, uint32_t handler)
@@ -115,6 +128,7 @@ void interrupts_init()
     }
 
     pic_remap(IRQ0_VECTOR, 40);
+    pit_init(PIT_TARGET_HZ);
 
     idt_set_gate(IRQ0_VECTOR, reinterpret_cast<uint32_t>(irq0_stub));
     idt_set_gate(IRQ1_VECTOR, reinterpret_cast<uint32_t>(irq1_stub));
