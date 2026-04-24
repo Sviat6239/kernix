@@ -16,6 +16,24 @@ void vga_init()
 
 void VGABuffer::putchar(char c)
 {
+    if (c == '\b')
+    {
+        if (x > 0)
+        {
+            x--;
+        }
+        else if (y > 0)
+        {
+            y--;
+            x = VGA_WIDTH - 1;
+        }
+
+        uint16_t offset = (y * VGA_WIDTH + x) * 2;
+        buffer[offset] = ' ';
+        buffer[offset + 1] = VGA_COLOR;
+        return;
+    }
+
     if (c == '\n')
     {
         x = 0;
