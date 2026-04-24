@@ -1,5 +1,6 @@
 #include "modules/vga_buffer.hpp"
 #include "modules/keyboard.hpp"
+#include "modules/string.hpp"
 
 extern "C" void kernel_main()
 {
@@ -23,21 +24,22 @@ extern "C" void kernel_main()
         {
             input[length] = '\0';
             vga_buffer.putchar('\n');
-            if (input == "-help")
+            if (strcmp(input, "-help") == 0)
             {
                 vga_buffer.print("Available commands:\n");
                 vga_buffer.print("-help - Show this help message\n");
                 vga_buffer.print("-clear - Clear the screen\n");
                 vga_buffer.print("-about - About project");
             }
-            else if (input == "-clear")
+            else if (strcmp(input, "-clear") == 0)
             {
                 vga_buffer.clear();
             }
-            else if (input == "-about"){
+            else if (strcmp(input, "-about") == 0)
+            {
                 vga_buffer.print("Kernix it is the simple representation of monolith kernel.");
             }
-            else if (input == "-version"){
+            else if (strcmp(input, "-version") == 0){
                 vga_buffer.print("v0.3");
             }
             else
@@ -61,7 +63,7 @@ extern "C" void kernel_main()
             continue;
         }
 
-        if (c >= 32 && c <= 126 && length < 63)
+        if (c >= 32 && c <= 126 && length < 511)
         {
             input[length++] = c;
             vga_buffer.putchar(c);
