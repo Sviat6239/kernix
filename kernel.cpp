@@ -17,7 +17,7 @@ extern "C" void kernel_main()
     interrupts_enable();
 
     ksys_clear_screen();
-    ksys_print("=== Kernix v0.0.7 ===\n");
+    ksys_print("=== Kernix v0.0.8 ===\n");
     ksys_print("Kernel loaded successfully!\n");
     ksys_print("Running in 32-bit mode\n");
     shell_init_message();

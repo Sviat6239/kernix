@@ -80,8 +80,14 @@ Then the shell prompt starts and input is processed in a loop.
   - heap growth by mapping extra pages when needed
 - Syscalls:
   - dispatcher: syscall_handler(eax, ebx, ecx, edx)
-  - implemented numbers in dispatcher: GET_TICKS(0), WRITE(1), GETCHAR(2), PUTCHAR(3)
-  - wrappers available: sys_get_ticks, sys_write, sys_getchar, sys_putchar, sys_clear_screen
+  - implemented numbers in dispatcher:
+    - GET_TICKS(0), WRITE(1), GETCHAR(2), PUTCHAR(3), CLEAR_SCREEN(4)
+    - KMALLOC(5), KFREE(6), KCALLOC(7), KREALLOC(8), KSIZE(9)
+    - KMALLOC_TOTAL(10), KMALLOC_USED(11), KMALLOC_REMAINING(12)
+  - wrappers available:
+    - sys_get_ticks, sys_write, sys_getchar, sys_putchar, sys_clear_screen
+    - sys_kmalloc, sys_kfree, sys_kcalloc, sys_krealloc, sys_ksize
+    - sys_kmalloc_total, sys_kmalloc_used, sys_kmalloc_remaining
 - Shell with command parser and built-in commands
 - Calculator module:
   - shell arithmetic command: calc <num1> <op> <num2>
@@ -116,6 +122,5 @@ Notes:
 - No scheduler or multitasking
 - No filesystem implementation yet (modules/fs is empty)
 - No auth implementation yet (modules/auth is empty)
-- SYS_CLEAR_SCREEN is declared in enum/wrapper, but not handled in syscall dispatcher
 - Trigonometric inverse functions asin/acos currently operate in integer mode for inputs -1, 0, 1
 - Some functions include safety limits to avoid int32 overflow (for example factorial n <= 12, fibonacci n <= 46)
