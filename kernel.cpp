@@ -25,10 +25,10 @@ extern "C" void kernel_main()
             input[length] = '\0';
             vga_buffer.putchar('\n');
 
-            char* command = input;
-            char* args = nullptr;
+            char *command = input;
+            char *args = nullptr;
 
-            char* space = find_space(input);
+            char *space = find_space(input);
 
             if (space)
             {
@@ -81,7 +81,6 @@ extern "C" void kernel_main()
             if (length > 0)
             {
                 length--;
-
                 vga_buffer.putchar('\b');
                 vga_buffer.putchar(' ');
                 vga_buffer.putchar('\b');
@@ -94,5 +93,5 @@ extern "C" void kernel_main()
             input[length++] = c;
             vga_buffer.putchar(c);
         }
-    }    
+    }
 }
