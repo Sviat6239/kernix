@@ -12,7 +12,7 @@ extern "C" void kernel_main()
     vga_buffer.print("Running in 32-bit mode\n");
     vga_buffer.print("Type something and press Enter:\n> ");
 
-    char input[64];
+    char input[512];
     int length = 0;
 
     while (true)
@@ -23,8 +23,29 @@ extern "C" void kernel_main()
         {
             input[length] = '\0';
             vga_buffer.putchar('\n');
-            vga_buffer.print("You typed: ");
-            vga_buffer.print(input);
+            if (input == "-help")
+            {
+                vga_buffer.print("Available commands:\n");
+                vga_buffer.print("-help - Show this help message\n");
+                vga_buffer.print("-clear - Clear the screen\n");
+                vga_buffer.print("-about - About project");
+            }
+            else if (input == "-clear")
+            {
+                vga_buffer.clear();
+            }
+            else if (input == "-about"){
+                vga_buffer.print("Kernix it is the simple representation of monolith kernel.");
+            }
+            else if (input == "-version"){
+                vga_buffer.print("v0.3");
+            }
+            else
+            {
+                vga_buffer.print("Unknown command: ");
+                vga_buffer.print(input);
+                vga_buffer.putchar('\n');
+            }
             vga_buffer.print("\n> ");
             length = 0;
             continue;
