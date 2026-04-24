@@ -83,7 +83,10 @@ Then the shell prompt starts and input is processed in a loop.
   - implemented numbers in dispatcher: GET_TICKS(0), WRITE(1), GETCHAR(2), PUTCHAR(3)
   - wrappers available: sys_get_ticks, sys_write, sys_getchar, sys_putchar, sys_clear_screen
 - Shell with command parser and built-in commands
-- Calculator module for basic arithmetic
+- Calculator module:
+  - shell arithmetic command: calc <num1> <op> <num2>
+  - built-in calc help: calc help, calc -h, calc --help
+  - additional implemented math APIs in module: sqr, pow, root, log, log10, sin, cos, tan, ctg, asin, acos, atan, actg, factorial, tetration, fibonacci
 
 ## Shell Commands
 
@@ -98,11 +101,14 @@ Then the shell prompt starts and input is processed in a loop.
 - panic
 - echo <text>
 - calc <num1> <op> <num2>
+- calc help (aliases: calc -h, calc --help)
 
 Notes:
 
 - syswrite currently prints extra debug text before syscall result.
 - calc supports operators: +, -, *, /.
+- calc help prints usage, examples and a list of implemented calculator capabilities.
+- advanced math functions are implemented in the calculator module API; shell command currently exposes arithmetic expression mode plus help.
 
 ## Known Gaps / TODO
 
@@ -111,3 +117,5 @@ Notes:
 - No filesystem implementation yet (modules/fs is empty)
 - No auth implementation yet (modules/auth is empty)
 - SYS_CLEAR_SCREEN is declared in enum/wrapper, but not handled in syscall dispatcher
+- Trigonometric inverse functions asin/acos currently operate in integer mode for inputs -1, 0, 1
+- Some functions include safety limits to avoid int32 overflow (for example factorial n <= 12, fibonacci n <= 46)
