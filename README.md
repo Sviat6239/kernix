@@ -2,7 +2,7 @@
 
 A minimal 32-bit C++ kernel with a simple VGA text interface.
 
-Current kernel banner/version in runtime: `Kernix v0.0.4`.
+Current kernel banner/version in runtime: `Kernix v0.0.5`.
 
 ## Build Requirements
 - `nasm`
@@ -31,7 +31,7 @@ make run
 - `modules/keyboard/keyboard.*` - keyboard scancode decode, character ring buffer, Shift support
 - `modules/interrupts/interrupts.*` - IDT setup, PIC remap, CPU exception handling, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
 - `modules/interrupts/interrupts_entry.asm` - ISR/IRQ assembly stubs (`isr0_stub`, `isr13_stub`, `isr14_stub`, `irq0_stub`, `irq1_stub`)
-- `modules/memory/memory.*` - paging setup (4MB identity map) and simple `kmalloc` bump allocator
+- `modules/memory/memory.*` - paging setup (4MB identity map) and kernel heap allocator (`kmalloc/kfree/kcalloc/krealloc`)
 - `modules/string/string.*` - `strcmp` and space search in a string
 - `modules/auth/auth.*` - auth module placeholder
 - `modules/shell/shell.*` - shell module placeholder
@@ -67,8 +67,9 @@ make run
 	- Paging enabled via CR3/CR0
 	- Page directory + first page table
 	- Identity mapping for first `4 MB`
-	- `kmalloc_init()` and `kmalloc(size)` (bump allocator, no free)
-	- allocator diagnostics: `kmalloc_remaining()`
+	- free-list heap allocator with 8-byte alignment and block split/coalesce
+	- allocation API: `kmalloc(size)`, `kfree(ptr)`, `kcalloc(count, size)`, `krealloc(ptr, new_size)`, `ksize(ptr)`
+	- allocator diagnostics: `kmalloc_total()`, `kmalloc_used()`, `kmalloc_remaining()`
 - Keyboard input via interrupt-driven buffering (no polling path), with Shift support
 - Keyboard input queue API (FIFO ring buffer):
 	- `bool keyboard_available()`
@@ -79,7 +80,7 @@ make run
 	- `about`
 	- `version`
 	- `ticks`
-	- `mem`
+	- `mem` (prints heap total/used/free)
 	- `panic` (triggers divide-by-zero for exception test)
 	- `echo <text>`
 
@@ -87,7 +88,6 @@ make run
 - No separate 16-bit bootloader file (`boot.asm`) and no disk loading path
 - No wall-clock/time API yet (only raw `ticks` counter is available)
 - No scheduler or multitasking
-- No free/allocator metadata in heap manager (only bump allocation)
 - No dynamic mapping beyond the initial 4MB identity map
 - No user mode or system calls
 - No filesystem and no device drivers beyond basic keyboard input

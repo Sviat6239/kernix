@@ -96,7 +96,13 @@ extern "C" void kernel_main()
             }
             else if (strcmp(command, "mem") == 0)
             {
-                vga_buffer.print("kmalloc remaining: ");
+                vga_buffer.print("heap total: ");
+                print_uint32(kmalloc_total());
+                vga_buffer.print(" bytes\n");
+                vga_buffer.print("heap used: ");
+                print_uint32(kmalloc_used());
+                vga_buffer.print(" bytes\n");
+                vga_buffer.print("heap free: ");
                 print_uint32(kmalloc_remaining());
                 vga_buffer.print(" bytes\n");
             }
