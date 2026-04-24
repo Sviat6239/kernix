@@ -71,11 +71,12 @@ extern "C" void kernel_main()
                 vga_buffer.print("clear - Clear the screen\n");
                 vga_buffer.print("about - About project\n");
                 vga_buffer.print("version - Show kernel version\n");
-                vga_buffer.print("ticks - Show timer ticks\n");
-                vga_buffer.print("systicks - Show ticks via syscall\n");
+                vga_buffer.print("ticks - Show timer ticks (kernel call)\n");
+                vga_buffer.print("systicks - Show ticks via syscall (int 0x90)\n");
+                vga_buffer.print("syswrite <text> - Write text via syscall\n");
                 vga_buffer.print("mem - Show allocator status\n");
                 vga_buffer.print("panic - Trigger a test exception\n");
-                vga_buffer.print("echo <text>\n");
+                vga_buffer.print("echo <text> - Echo text\n");
             }
             else if (strcmp(command, "clear") == 0)
             {
@@ -101,6 +102,33 @@ extern "C" void kernel_main()
                 vga_buffer.print("systicks: ");
                 print_uint32(sys_get_ticks());
                 vga_buffer.putchar('\n');
+            }
+            else if (strcmp(command, "syswrite") == 0)
+            {
+                if (args)
+                {
+                    unsigned int len = 0;
+                    const char *p = args;
+                    while (*p)
+                    {
+                        len++;
+                        p++;
+                    }
+
+                    vga_buffer.print("[DEBUG] len=");
+                    print_uint32(len);
+                    vga_buffer.print(" text=");
+                    vga_buffer.print(args);
+                    vga_buffer.print(" -> ");
+
+                    vga_buffer.print("syscall result: ");
+                    print_uint32(sys_write(args, len));
+                    vga_buffer.putchar('\n');
+                }
+                else
+                {
+                    vga_buffer.print("Usage: syswrite <text>\n");
+                }
             }
             else if (strcmp(command, "mem") == 0)
             {

@@ -19,3 +19,14 @@ char *find_space(char *str)
     }
     return nullptr;
 }
+
+unsigned int strlen(const char *str)
+{
+    unsigned int len = 0;
+    while (*str)
+    {
+        len++;
+        str++;
+    }
+    return len;
+}

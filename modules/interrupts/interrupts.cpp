@@ -100,12 +100,12 @@ static void pit_init(uint32_t frequency_hz)
     outb(PIT_CHANNEL0_PORT, static_cast<uint8_t>((divisor >> 8) & 0xFF));
 }
 
-static void idt_set_gate(uint8_t vector, uint32_t handler)
+static void idt_set_gate(uint8_t vector, uint32_t handler, uint8_t type_attr = 0x8E)
 {
     g_idt[vector].offset_low = static_cast<uint16_t>(handler & 0xFFFF);
     g_idt[vector].selector = 0x08;
     g_idt[vector].zero = 0;
-    g_idt[vector].type_attr = 0x8E;
+    g_idt[vector].type_attr = type_attr;
     g_idt[vector].offset_high = static_cast<uint16_t>((handler >> 16) & 0xFFFF);
 }
 
@@ -164,7 +164,7 @@ void interrupts_init()
     idt_set_gate(EXC_PAGE_FAULT_VECTOR, reinterpret_cast<uint32_t>(isr14_stub));
     idt_set_gate(IRQ0_VECTOR, reinterpret_cast<uint32_t>(irq0_stub));
     idt_set_gate(IRQ1_VECTOR, reinterpret_cast<uint32_t>(irq1_stub));
-    idt_set_gate(SYSCALL_VECTOR, reinterpret_cast<uint32_t>(syscall_stub));
+    idt_set_gate(SYSCALL_VECTOR, reinterpret_cast<uint32_t>(syscall_stub), 0xEE);
 
     idt_load();
 }

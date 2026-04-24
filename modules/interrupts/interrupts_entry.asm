@@ -54,10 +54,32 @@ irq1_stub:
     iretd
 
 syscall_stub:
-    pushad
-    push dword [esp + 28]
+    pusha
+
+    push ds
+    push es
+    push fs
+    push gs
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    push edx
+    push ecx
+    push ebx
+    push eax
+
     call syscall_handler
-    add esp, 4
-    mov [esp + 28], eax
-    popad
+
+    add esp, 16
+
+    pop gs
+    pop fs
+    pop es
+    pop ds
+
+    popa
     iretd
