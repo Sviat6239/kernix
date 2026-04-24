@@ -4,6 +4,7 @@
 #include "../syscalls/syscalls.hpp"
 #include "../interrupts/interrupts.hpp"
 #include "../memory/memory.hpp"
+#include "../calc/calc.hpp"
 
 void print_uint32(uint32_t value)
 {
@@ -26,9 +27,10 @@ void print_uint32(uint32_t value)
         ksys_putchar(buffer[--index]);
 }
 
-void shell_init()
+void shell_init_message()
 {
-    ksys_print("Shell initialized.\n");
+    ksys_print("Shell initialized successfully!\n");
+    ksys_print("Type help to get some help:\n> ");
 }
 
 void shell_handle_input(char *input)
@@ -56,6 +58,7 @@ void shell_handle_input(char *input)
         ksys_print("mem - Show allocator status\n");
         ksys_print("panic - Trigger a test exception\n");
         ksys_print("echo <text> - Echo text\n");
+        ksys_print("calc - Simple calculator (usage: calc <num1> <op> <num2>)\n");
     }
     else if (strcmp(command, "clear") == 0)
     {
@@ -65,10 +68,10 @@ void shell_handle_input(char *input)
     {
         ksys_print("Kernix it is the simple representation of monolith kernel.\n");
     }
-    else if (strcmp(command, "version") == 0)
+    else if (strcmp(command, "version") == 0 || strcmp(command, "ver") == 0 || strcmp(command, "-v") == 0)
     {
         ksys_print("Kenel v0.0.7\n");
-        ksys_print("Shell v0.0.2\n");
+        ksys_print("Shell v0.0.3\n");
     }
     else if (strcmp(command, "ticks") == 0)
     {
@@ -138,6 +141,10 @@ void shell_handle_input(char *input)
             ksys_print(args);
 
         ksys_putchar('\n');
+    }
+    else if (strcmp(command, "calc") == 0)
+    {
+        calc_init(args);
     }
     else
     {

@@ -21,7 +21,7 @@ CXXFLAGS = -ffreestanding -fno-exceptions -fno-rtti -Wall -Wextra -std=c++17 -m3
 LDFLAGS = -m elf_i386 -T linker.ld
 
 # Objects
-OBJS = kernel_entry.o kernel.o modules/vga_buffer/vga_buffer.o modules/keyboard/keyboard.o modules/string/string.o modules/interrupts/interrupts.o modules/interrupts/interrupts_entry.o modules/memory/memory.o modules/auth/auth.o modules/shell/shell.o modules/fs/fs.o modules/syscalls/syscalls.o
+OBJS = kernel_entry.o kernel.o modules/vga_buffer/vga_buffer.o modules/keyboard/keyboard.o modules/string/string.o modules/interrupts/interrupts.o modules/interrupts/interrupts_entry.o modules/memory/memory.o modules/auth/auth.o modules/shell/shell.o modules/fs/fs.o modules/syscalls/syscalls.o modules/calc/calc.o
 
 all: $(TARGET)
 
@@ -67,6 +67,9 @@ modules/fs/fs.o: modules/fs/fs.cpp modules/fs/fs.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 modules/syscalls/syscalls.o: modules/syscalls/syscalls.cpp modules/syscalls/syscalls.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/calc/calc.o: modules/calc/calc.cpp modules/calc/calc.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
