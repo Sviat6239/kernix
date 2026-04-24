@@ -24,6 +24,7 @@
 
 #define IRQ0_VECTOR 32
 #define IRQ1_VECTOR 33
+#define SYSCALL_VECTOR 0x90
 #define EXC_DIVIDE_BY_ZERO_VECTOR 0
 #define EXC_GENERAL_PROTECTION_VECTOR 13
 #define EXC_PAGE_FAULT_VECTOR 14
@@ -49,6 +50,7 @@ static volatile uint32_t g_ticks = 0;
 
 extern "C" void irq0_stub();
 extern "C" void irq1_stub();
+extern "C" void syscall_stub();
 extern "C" void isr0_stub();
 extern "C" void isr13_stub();
 extern "C" void isr14_stub();
@@ -162,6 +164,7 @@ void interrupts_init()
     idt_set_gate(EXC_PAGE_FAULT_VECTOR, reinterpret_cast<uint32_t>(isr14_stub));
     idt_set_gate(IRQ0_VECTOR, reinterpret_cast<uint32_t>(irq0_stub));
     idt_set_gate(IRQ1_VECTOR, reinterpret_cast<uint32_t>(irq1_stub));
+    idt_set_gate(SYSCALL_VECTOR, reinterpret_cast<uint32_t>(syscall_stub));
 
     idt_load();
 }

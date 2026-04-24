@@ -3,7 +3,14 @@
 
 #include <stdint.h>
 
+static constexpr uint32_t PAGE_FLAG_PRESENT = 0x001;
+static constexpr uint32_t PAGE_FLAG_RW = 0x002;
+static constexpr uint32_t PAGE_FLAG_USER = 0x004;
+
 void paging_init();
+void map_page(uint32_t virt, uint32_t phys, uint32_t flags);
+void unmap_page(uint32_t virt);
+
 void kmalloc_init();
 void *kmalloc(uint32_t size);
 void kfree(void *ptr);

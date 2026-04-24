@@ -3,6 +3,7 @@
 #include "modules/string/string.hpp"
 #include "modules/interrupts/interrupts.hpp"
 #include "modules/memory/memory.hpp"
+#include "modules/syscalls/syscalls.hpp"
 
 static void print_uint32(uint32_t value)
 {
@@ -35,7 +36,7 @@ extern "C" void kernel_main()
     interrupts_enable();
 
     vga_buffer.clear();
-    vga_buffer.print("=== Kernix v0.0.4 ===\n");
+    vga_buffer.print("=== Kernix v0.0.6 ===\n");
     vga_buffer.print("Kernel loaded successfully!\n");
     vga_buffer.print("Running in 32-bit mode\n");
     vga_buffer.print("Type help to get some help:\n> ");
@@ -71,6 +72,7 @@ extern "C" void kernel_main()
                 vga_buffer.print("about - About project\n");
                 vga_buffer.print("version - Show kernel version\n");
                 vga_buffer.print("ticks - Show timer ticks\n");
+                vga_buffer.print("systicks - Show ticks via syscall\n");
                 vga_buffer.print("mem - Show allocator status\n");
                 vga_buffer.print("panic - Trigger a test exception\n");
                 vga_buffer.print("echo <text>\n");
@@ -85,13 +87,19 @@ extern "C" void kernel_main()
             }
             else if (strcmp(command, "version") == 0)
             {
-                vga_buffer.print("Kenel v0.0.5\n");
+                vga_buffer.print("Kenel v0.0.6\n");
                 vga_buffer.print("Shell v0.0.1\n");
             }
             else if (strcmp(command, "ticks") == 0)
             {
                 vga_buffer.print("ticks: ");
                 print_uint32(interrupts_get_ticks());
+                vga_buffer.putchar('\n');
+            }
+            else if (strcmp(command, "systicks") == 0)
+            {
+                vga_buffer.print("systicks: ");
+                print_uint32(sys_get_ticks());
                 vga_buffer.putchar('\n');
             }
             else if (strcmp(command, "mem") == 0)

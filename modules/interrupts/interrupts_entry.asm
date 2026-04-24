@@ -5,10 +5,12 @@
 [GLOBAL isr14_stub]
 [GLOBAL irq0_stub]
 [GLOBAL irq1_stub]
+[GLOBAL syscall_stub]
 
 [EXTERN cpu_exception_handler]
 [EXTERN irq0_handler]
 [EXTERN irq1_handler]
+[EXTERN syscall_handler]
 
 isr0_stub:
     pushad
@@ -48,5 +50,14 @@ irq0_stub:
 irq1_stub:
     pushad
     call irq1_handler
+    popad
+    iretd
+
+syscall_stub:
+    pushad
+    push dword [esp + 28]
+    call syscall_handler
+    add esp, 4
+    mov [esp + 28], eax
     popad
     iretd
