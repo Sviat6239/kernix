@@ -21,7 +21,7 @@ CXXFLAGS = -ffreestanding -fno-exceptions -fno-rtti -Wall -Wextra -std=c++17 -m3
 LDFLAGS = -m elf_i386 -T linker.ld
 
 # Objects
-OBJS = kernel_entry.o kernel.o modules/vga_buffer/vga_buffer.o modules/keyboard/keyboard.o modules/string/string.o modules/interrupts/interrupts.o modules/interrupts/interrupts_entry.o modules/memory/memory.o modules/auth/auth.o modules/shell/shell.o modules/fs/fs.o modules/syscalls/syscalls.o modules/calc/calc.o
+OBJS = kernel_entry.o kernel.o modules/vga_buffer/vga_buffer.o modules/keyboard/keyboard.o modules/string/string.o modules/gdt/gdt.o modules/interrupts/interrupts.o modules/interrupts/interrupts_entry.o modules/memory/memory.o modules/tasking/tasking.o modules/auth/auth.o modules/shell/shell.o modules/fs/fs.o modules/syscalls/syscalls.o modules/calc/calc.o
 
 all: $(TARGET)
 
@@ -36,7 +36,10 @@ $(KERNEL_ELF): $(OBJS)
 kernel_entry.o: kernel_entry.asm
 	$(NASM) -f elf32 -o $@ $<
 
-kernel.o: kernel.cpp modules/vga_buffer/vga_buffer.hpp modules/keyboard/keyboard.hpp modules/string/string.hpp modules/interrupts/interrupts.hpp modules/memory/memory.hpp
+kernel.o: kernel.cpp modules/vga_buffer/vga_buffer.hpp modules/keyboard/keyboard.hpp modules/string/string.hpp modules/interrupts/interrupts.hpp modules/memory/memory.hpp modules/gdt/gdt.hpp modules/syscalls/syscalls.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/gdt/gdt.o: modules/gdt/gdt.cpp modules/gdt/gdt.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 modules/vga_buffer/vga_buffer.o: modules/vga_buffer/vga_buffer.cpp modules/vga_buffer/vga_buffer.hpp
@@ -55,6 +58,9 @@ modules/interrupts/interrupts_entry.o: modules/interrupts/interrupts_entry.asm
 	$(NASM) -f elf32 -o $@ $<
 
 modules/memory/memory.o: modules/memory/memory.cpp modules/memory/memory.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/tasking/tasking.o: modules/tasking/tasking.cpp modules/tasking/tasking.hpp modules/memory/memory.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 modules/auth/auth.o: modules/auth/auth.cpp modules/auth/auth.hpp

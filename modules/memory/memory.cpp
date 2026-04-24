@@ -290,9 +290,9 @@ void paging_init()
         return;
 
     for (uint32_t i = 0; i < PAGE_ENTRIES; ++i)
-        first_table[i] = (i * PAGE_SIZE) | PAGE_FLAG_PRESENT | PAGE_FLAG_RW;
+        first_table[i] = (i * PAGE_SIZE) | PAGE_FLAG_PRESENT | PAGE_FLAG_RW | PAGE_FLAG_USER;
 
-    page_directory[0] = (first_table_phys & PAGE_FRAME_MASK) | PAGE_FLAG_PRESENT | PAGE_FLAG_RW;
+    page_directory[0] = (first_table_phys & PAGE_FRAME_MASK) | PAGE_FLAG_PRESENT | PAGE_FLAG_RW | PAGE_FLAG_USER;
 
     uint32_t pd_phys = reinterpret_cast<uint32_t>(page_directory);
     __asm__ volatile("mov %0, %%cr3" : : "r"(pd_phys) : "memory");

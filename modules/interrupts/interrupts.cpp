@@ -3,6 +3,7 @@
 #include "interrupts.hpp"
 #include "../keyboard/keyboard.hpp"
 #include "../vga_buffer/vga_buffer.hpp"
+#include "../tasking/tasking.hpp"
 
 #define IDT_ENTRIES 256
 
@@ -164,7 +165,8 @@ void interrupts_init()
     idt_set_gate(EXC_PAGE_FAULT_VECTOR, reinterpret_cast<uint32_t>(isr14_stub));
     idt_set_gate(IRQ0_VECTOR, reinterpret_cast<uint32_t>(irq0_stub));
     idt_set_gate(IRQ1_VECTOR, reinterpret_cast<uint32_t>(irq1_stub));
-    idt_set_gate(SYSCALL_VECTOR, reinterpret_cast<uint32_t>(syscall_stub), 0xEE);
+    // Use a trap gate so IF stays enabled while a syscall blocks for input.
+    idt_set_gate(SYSCALL_VECTOR, reinterpret_cast<uint32_t>(syscall_stub), 0xEF);
 
     idt_load();
 }
@@ -216,11 +218,12 @@ extern "C" void cpu_exception_handler(uint32_t vector, uint32_t error_code)
     panic_halt();
 }
 
-extern "C" void irq0_handler()
+extern "C" uint32_t irq0_handler(uint32_t current_esp)
 {
     ++g_ticks;
     vga_buffer.tick(g_ticks);
     outb(PIC1_COMMAND, PIC_EOI);
+    return tasking_schedule(current_esp);
 }
 
 extern "C" void irq1_handler()

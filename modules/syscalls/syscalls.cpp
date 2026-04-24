@@ -3,6 +3,7 @@
 #include "../vga_buffer/vga_buffer.hpp"
 #include "../keyboard/keyboard.hpp"
 #include "../memory/memory.hpp"
+#include "../shell/shell.hpp"
 
 // ============================================================================
 // KERNEL-SIDE IMPLEMENTATIONS (direct kernel functions, not syscalls)
@@ -21,10 +22,7 @@ int32_t ksys_write(const char *buffer, uint32_t size)
 
 uint32_t ksys_getchar()
 {
-    if (keyboard_available())
-        return keyboard_getchar();
-
-    return 0xFFFFFFFFu;
+    return keyboard_getchar();
 }
 
 int32_t ksys_putchar(char c)
@@ -36,6 +34,15 @@ int32_t ksys_putchar(char c)
 void ksys_clear_screen()
 {
     vga_buffer.clear();
+}
+
+int32_t ksys_shell_exec(char *command)
+{
+    if (!command)
+        return -1;
+
+    shell_handle_input(command);
+    return 0;
 }
 
 // ============================================================================
@@ -87,6 +94,9 @@ extern "C" uint32_t syscall_handler(uint32_t eax, uint32_t ebx, uint32_t ecx, ui
 
     case SYS_KMALLOC_REMAINING:
         return kmalloc_remaining();
+
+    case SYS_SHELL_EXEC:
+        return static_cast<uint32_t>(ksys_shell_exec(reinterpret_cast<char *>(ebx)));
 
     default:
         return 0xFFFFFFFFu;
@@ -232,6 +242,17 @@ uint32_t sys_kmalloc_remaining()
         "int $0x90"
         : "=a"(result)
         : "a"(SYS_KMALLOC_REMAINING)
+        : "memory", "cc");
+    return result;
+}
+
+int32_t sys_shell_exec(char *command)
+{
+    int32_t result;
+    __asm__ volatile(
+        "int $0x90"
+        : "=a"(result)
+        : "a"(SYS_SHELL_EXEC), "b"(command)
         : "memory", "cc");
     return result;
 }

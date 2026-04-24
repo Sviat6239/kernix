@@ -43,7 +43,11 @@ isr14_stub:
 
 irq0_stub:
     pushad
+    mov eax, esp
+    push eax
     call irq0_handler
+    add esp, 4
+    mov esp, eax
     popad
     iretd
 

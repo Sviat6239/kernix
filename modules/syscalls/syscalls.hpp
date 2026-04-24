@@ -19,6 +19,7 @@ enum SyscallNumber : uint32_t
     SYS_KMALLOC_TOTAL = 10,
     SYS_KMALLOC_USED = 11,
     SYS_KMALLOC_REMAINING = 12,
+    SYS_SHELL_EXEC = 13,
 };
 
 // Kernel-side syscall handler (called from int 0x90 stub)
@@ -37,6 +38,7 @@ uint32_t ksize(const void *ptr);
 uint32_t kmalloc_total();
 uint32_t kmalloc_used();
 uint32_t kmalloc_remaining();
+int32_t ksys_shell_exec(char *command);
 
 // User-space syscall wrappers (invoke int 0x90)
 uint32_t sys_get_ticks();
@@ -52,5 +54,6 @@ uint32_t sys_ksize(const void *ptr);
 uint32_t sys_kmalloc_total();
 uint32_t sys_kmalloc_used();
 uint32_t sys_kmalloc_remaining();
+int32_t sys_shell_exec(char *command);
 
 #endif

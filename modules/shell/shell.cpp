@@ -70,7 +70,7 @@ void shell_handle_input(char *input)
     }
     else if (strcmp(command, "version") == 0 || strcmp(command, "ver") == 0 || strcmp(command, "-v") == 0)
     {
-        ksys_print("Kenel v0.0.8\n");
+        ksys_print("Kenel v0.0.9\n");
         ksys_print("Shell v0.0.3\n");
     }
     else if (strcmp(command, "ticks") == 0)
