@@ -31,6 +31,7 @@ make run
 - `modules/keyboard.*` - keyboard scancode decode, character ring buffer, Shift support
 - `modules/interrupts.*` - IDT setup, PIC remap, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
 - `modules/interrupts_entry.asm` - IRQ assembly stubs (`irq0_stub`, `irq1_stub`)
+- `modules/memory.*` - paging setup (4MB identity map) and simple `kmalloc` bump allocator
 - `modules/string.*` - `strcmp` and space search in a string
 - `linker.ld` - links kernel at base address `0x100000`
 - `Makefile` - build and run rules
@@ -50,6 +51,11 @@ make run
 - PIT initialization for timer base:
 	- Channel 0 configured in mode `0x36`
 	- Frequency set to `100 Hz`
+- Memory subsystem basics:
+	- Paging enabled via CR3/CR0
+	- Page directory + first page table
+	- Identity mapping for first `4 MB`
+	- `kmalloc_init()` and `kmalloc(size)` (bump allocator, no free)
 - Keyboard input via interrupt-driven buffering (no polling path), with Shift support
 - Keyboard input queue API (FIFO ring buffer):
 	- `bool keyboard_available()`
@@ -66,7 +72,8 @@ make run
 - No CPU exception handlers (e.g. divide-by-zero/page fault diagnostics)
 - No wall-clock/time API yet (only raw `ticks` counter is available)
 - No scheduler or multitasking
-- No memory manager (paging/heap/allocator)
+- No free/allocator metadata in heap manager (only bump allocation)
+- No dynamic mapping beyond the initial 4MB identity map
 - No user mode or system calls
 - No filesystem and no device drivers beyond basic keyboard input
 - No VGA scrolling (when reaching the bottom, cursor stays on the last line)

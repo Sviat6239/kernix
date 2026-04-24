@@ -2,10 +2,13 @@
 #include "modules/keyboard.hpp"
 #include "modules/string.hpp"
 #include "modules/interrupts.hpp"
+#include "modules/memory.hpp"
 
 extern "C" void kernel_main()
 {
     vga_init();
+    paging_init();
+    kmalloc_init();
     keyboard_init();
     interrupts_init();
     interrupts_enable();

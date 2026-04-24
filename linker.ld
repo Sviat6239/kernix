@@ -18,6 +18,8 @@ SECTIONS {
         *(COMMON)
         bss_end = .;
     }
+
+    kernel_end = .;
     
     /DISCARD/ : {
         *(.note*)
