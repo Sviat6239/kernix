@@ -2,6 +2,7 @@
 
 #include "interrupts.hpp"
 #include "../keyboard/keyboard.hpp"
+#include "../vga_buffer/vga_buffer.hpp"
 
 #define IDT_ENTRIES 256
 
@@ -149,6 +150,7 @@ uint32_t interrupts_get_ticks()
 extern "C" void irq0_handler()
 {
     ++g_ticks;
+    vga_buffer.tick(g_ticks);
     outb(PIC1_COMMAND, PIC_EOI);
 }
 

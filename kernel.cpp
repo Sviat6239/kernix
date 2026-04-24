@@ -14,7 +14,7 @@ extern "C" void kernel_main()
     interrupts_enable();
 
     vga_buffer.clear();
-    vga_buffer.print("=== Kernix v0.4 ===\n");
+    vga_buffer.print("=== Kernix v0.0.4 ===\n");
     vga_buffer.print("Kernel loaded successfully!\n");
     vga_buffer.print("Running in 32-bit mode\n");
     vga_buffer.print("Type help to get some help:\n> ");
@@ -61,7 +61,8 @@ extern "C" void kernel_main()
             }
             else if (strcmp(command, "version") == 0)
             {
-                vga_buffer.print("v0.4\n");
+                vga_buffer.print("Kenel v0.0.4\n");
+                vga_buffer.print("Shell v0.0.1\n");
             }
             else if (strcmp(command, "echo") == 0)
             {
