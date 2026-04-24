@@ -26,6 +26,17 @@ uint32_t ksys_getchar()
     return 0xFFFFFFFFu;
 }
 
+int32_t ksys_putchar(char c)
+{
+    vga_buffer.putchar(c);
+    return 0;
+}
+
+void ksys_clear_screen()
+{
+    vga_buffer.clear();
+}
+
 // ============================================================================
 // SYSCALL DISPATCHER (called by int 0x90 handler from ASM)
 // ============================================================================
@@ -42,6 +53,10 @@ extern "C" uint32_t syscall_handler(uint32_t eax, uint32_t ebx, uint32_t ecx, ui
 
     case SYS_GETCHAR:
         return ksys_getchar();
+
+    case SYS_PUTCHAR:
+        ksys_putchar(static_cast<char>(ebx));
+        return 0;
 
     default:
         return 0xFFFFFFFFu;
@@ -83,4 +98,24 @@ uint32_t sys_getchar()
         : "a"(SYS_GETCHAR)
         : "memory");
     return result;
+}
+
+int32_t sys_putchar(char c)
+{
+    int32_t result;
+    __asm__ volatile(
+        "int $0x90"
+        : "=a"(result)
+        : "a"(SYS_PUTCHAR), "b"(c)
+        : "memory", "cc");
+    return result;
+}
+
+void sys_clear_screen()
+{
+    __asm__ volatile(
+        "int $0x90"
+        :
+        : "a"(SYS_CLEAR_SCREEN)
+        : "memory");
 }
