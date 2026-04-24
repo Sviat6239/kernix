@@ -21,7 +21,7 @@ CXXFLAGS = -ffreestanding -fno-exceptions -fno-rtti -Wall -Wextra -std=c++17 -m3
 LDFLAGS = -m elf_i386 -T linker.ld
 
 # Objects
-OBJS = kernel_entry.o kernel.o modules/vga_buffer.o modules/keyboard.o modules/string.o
+OBJS = kernel_entry.o kernel.o modules/vga_buffer.o modules/keyboard.o modules/string.o modules/interrupts.o modules/interrupts_entry.o
 
 all: $(TARGET)
 
@@ -47,6 +47,12 @@ modules/keyboard.o: modules/keyboard.cpp modules/keyboard.hpp
 
 modules/string.o: modules/string.cpp modules/string.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/interrupts.o: modules/interrupts.cpp modules/interrupts.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/interrupts_entry.o: modules/interrupts_entry.asm
+	$(NASM) -f elf32 -o $@ $<
 
 clean:
 	rm -f $(OBJS) $(KERNEL_ELF) $(TARGET)

@@ -2,16 +2,6 @@
 
 #include "keyboard.hpp"
 
-#define KEYBOARD_DATA_PORT 0x60
-#define KEYBOARD_STATUS_PORT 0x64
-
-static inline uint8_t inb(uint16_t port)
-{
-    uint8_t value;
-    __asm__ volatile("inb %1, %0" : "=a"(value) : "Nd"(port));
-    return value;
-}
-
 static char key_buffer[256];
 static int buf_head = 0;
 static int buf_tail = 0;
@@ -163,13 +153,8 @@ void keyboard_init()
     shift_pressed = false;
 }
 
-void keyboard_poll()
+void keyboard_handle_scancode(uint8_t scancode)
 {
-    if ((inb(KEYBOARD_STATUS_PORT) & 0x01) == 0)
-        return;
-
-    uint8_t scancode = inb(KEYBOARD_DATA_PORT);
-
     if (scancode == 0x2A || scancode == 0x36)
     {
         shift_pressed = true;
@@ -198,7 +183,7 @@ bool keyboard_has_char()
 char keyboard_getchar()
 {
     while (!keyboard_has_char())
-        keyboard_poll();
+        __asm__ volatile("hlt");
 
     return pop_char();
 }

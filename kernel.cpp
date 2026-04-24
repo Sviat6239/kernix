@@ -1,11 +1,14 @@
 #include "modules/vga_buffer.hpp"
 #include "modules/keyboard.hpp"
 #include "modules/string.hpp"
+#include "modules/interrupts.hpp"
 
 extern "C" void kernel_main()
 {
     vga_init();
     keyboard_init();
+    interrupts_init();
+    interrupts_enable();
 
     vga_buffer.clear();
     vga_buffer.print("=== Kernix v0.4 ===\n");
