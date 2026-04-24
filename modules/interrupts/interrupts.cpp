@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #include "interrupts.hpp"
-#include "keyboard.hpp"
+#include "../keyboard/keyboard.hpp"
 
 #define IDT_ENTRIES 256
 

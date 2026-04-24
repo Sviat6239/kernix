@@ -21,7 +21,7 @@ CXXFLAGS = -ffreestanding -fno-exceptions -fno-rtti -Wall -Wextra -std=c++17 -m3
 LDFLAGS = -m elf_i386 -T linker.ld
 
 # Objects
-OBJS = kernel_entry.o kernel.o modules/vga_buffer.o modules/keyboard.o modules/string.o modules/interrupts.o modules/interrupts_entry.o modules/memory.o
+OBJS = kernel_entry.o kernel.o modules/vga_buffer/vga_buffer.o modules/keyboard/keyboard.o modules/string/string.o modules/interrupts/interrupts.o modules/interrupts/interrupts_entry.o modules/memory/memory.o modules/auth/auth.o modules/shell/shell.o modules/fs/fs.o
 
 all: $(TARGET)
 
@@ -39,22 +39,31 @@ kernel_entry.o: kernel_entry.asm
 kernel.o: kernel.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-modules/vga_buffer.o: modules/vga_buffer.cpp modules/vga_buffer.hpp
+modules/vga_buffer/vga_buffer.o: modules/vga_buffer/vga_buffer.cpp modules/vga_buffer/vga_buffer.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-modules/keyboard.o: modules/keyboard.cpp modules/keyboard.hpp
+modules/keyboard/keyboard.o: modules/keyboard/keyboard.cpp modules/keyboard/keyboard.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-modules/string.o: modules/string.cpp modules/string.hpp
+modules/string/string.o: modules/string/string.cpp modules/string/string.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-modules/interrupts.o: modules/interrupts.cpp modules/interrupts.hpp
+modules/interrupts/interrupts.o: modules/interrupts/interrupts.cpp modules/interrupts/interrupts.hpp modules/keyboard/keyboard.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-modules/interrupts_entry.o: modules/interrupts_entry.asm
+modules/interrupts/interrupts_entry.o: modules/interrupts/interrupts_entry.asm
 	$(NASM) -f elf32 -o $@ $<
 
-modules/memory.o: modules/memory.cpp modules/memory.hpp
+modules/memory/memory.o: modules/memory/memory.cpp modules/memory/memory.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/auth/auth.o: modules/auth/auth.cpp modules/auth/auth.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/shell/shell.o: modules/shell/shell.cpp modules/shell/shell.hpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+modules/fs/fs.o: modules/fs/fs.cpp modules/fs/fs.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:

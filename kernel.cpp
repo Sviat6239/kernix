@@ -1,8 +1,8 @@
-#include "modules/vga_buffer.hpp"
-#include "modules/keyboard.hpp"
-#include "modules/string.hpp"
-#include "modules/interrupts.hpp"
-#include "modules/memory.hpp"
+#include "modules/vga_buffer/vga_buffer.hpp"
+#include "modules/keyboard/keyboard.hpp"
+#include "modules/string/string.hpp"
+#include "modules/interrupts/interrupts.hpp"
+#include "modules/memory/memory.hpp"
 
 extern "C" void kernel_main()
 {

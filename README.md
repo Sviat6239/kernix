@@ -27,12 +27,14 @@ make run
 ## Structure
 - `kernel_entry.asm` - `_start` entry point, multiboot header, stack setup, `.bss` clear, call to `kernel_main`
 - `kernel.cpp` - kernel initialization and simple command interface
-- `modules/vga_buffer.*` - VGA text output (80x25)
-- `modules/keyboard.*` - keyboard scancode decode, character ring buffer, Shift support
-- `modules/interrupts.*` - IDT setup, PIC remap, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
-- `modules/interrupts_entry.asm` - IRQ assembly stubs (`irq0_stub`, `irq1_stub`)
-- `modules/memory.*` - paging setup (4MB identity map) and simple `kmalloc` bump allocator
-- `modules/string.*` - `strcmp` and space search in a string
+- `modules/vga_buffer/vga_buffer.*` - VGA text output (80x25)
+- `modules/keyboard/keyboard.*` - keyboard scancode decode, character ring buffer, Shift support
+- `modules/interrupts/interrupts.*` - IDT setup, PIC remap, IRQ handlers (`IRQ0` timer, `IRQ1` keyboard)
+- `modules/interrupts/interrupts_entry.asm` - IRQ assembly stubs (`irq0_stub`, `irq1_stub`)
+- `modules/memory/memory.*` - paging setup (4MB identity map) and simple `kmalloc` bump allocator
+- `modules/string/string.*` - `strcmp` and space search in a string
+- `modules/auth/auth.*` - auth module placeholder
+- `modules/shell/shell.*` - shell module placeholder
 - `linker.ld` - links kernel at base address `0x100000`
 - `Makefile` - build and run rules
 
