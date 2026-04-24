@@ -6,5 +6,6 @@
 void paging_init();
 void kmalloc_init();
 void *kmalloc(uint32_t size);
+uint32_t kmalloc_remaining();
 
 #endif

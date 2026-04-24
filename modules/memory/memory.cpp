@@ -63,3 +63,11 @@ void *kmalloc(uint32_t size)
     g_kmalloc_cursor = next;
     return result;
 }
+
+uint32_t kmalloc_remaining()
+{
+    if (g_kmalloc_cursor == 0)
+        return 0;
+
+    return IDENTITY_MAP_LIMIT - g_kmalloc_cursor;
+}

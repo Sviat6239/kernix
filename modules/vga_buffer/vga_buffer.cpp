@@ -23,6 +23,40 @@ static inline uint8_t inb(uint16_t port)
     return value;
 }
 
+static void scroll_up()
+{
+    for (int row = 1; row < VGA_HEIGHT; ++row)
+    {
+        for (int column = 0; column < VGA_WIDTH; ++column)
+        {
+            int from = (row * VGA_WIDTH + column) * 2;
+            int to = ((row - 1) * VGA_WIDTH + column) * 2;
+
+            vga_buffer.buffer[to] = vga_buffer.buffer[from];
+            vga_buffer.buffer[to + 1] = vga_buffer.buffer[from + 1];
+        }
+    }
+
+    for (int column = 0; column < VGA_WIDTH; ++column)
+    {
+        int offset = ((VGA_HEIGHT - 1) * VGA_WIDTH + column) * 2;
+        vga_buffer.buffer[offset] = ' ';
+        vga_buffer.buffer[offset + 1] = VGA_COLOR;
+    }
+}
+
+static void advance_cursor()
+{
+    vga_buffer.x = 0;
+    vga_buffer.y++;
+
+    if (vga_buffer.y >= VGA_HEIGHT)
+    {
+        scroll_up();
+        vga_buffer.y = VGA_HEIGHT - 1;
+    }
+}
+
 void vga_init()
 {
     vga_buffer.buffer = (volatile uint8_t *)VGA_BUFFER;
@@ -97,10 +131,7 @@ void VGABuffer::putchar(char c)
 
     if (c == '\n')
     {
-        x = 0;
-        y++;
-        if (y >= VGA_HEIGHT)
-            y = VGA_HEIGHT - 1;
+        advance_cursor();
         sync_cursor();
         return;
     }
@@ -111,12 +142,7 @@ void VGABuffer::putchar(char c)
 
     x++;
     if (x >= VGA_WIDTH)
-    {
-        x = 0;
-        y++;
-        if (y >= VGA_HEIGHT)
-            y = VGA_HEIGHT - 1;
-    }
+        advance_cursor();
 
     sync_cursor();
 }

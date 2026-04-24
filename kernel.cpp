@@ -4,6 +4,27 @@
 #include "modules/interrupts/interrupts.hpp"
 #include "modules/memory/memory.hpp"
 
+static void print_uint32(uint32_t value)
+{
+    char buffer[11];
+    int index = 0;
+
+    if (value == 0)
+    {
+        vga_buffer.putchar('0');
+        return;
+    }
+
+    while (value > 0 && index < 10)
+    {
+        buffer[index++] = static_cast<char>('0' + (value % 10));
+        value /= 10;
+    }
+
+    while (index > 0)
+        vga_buffer.putchar(buffer[--index]);
+}
+
 extern "C" void kernel_main()
 {
     vga_init();
@@ -49,6 +70,9 @@ extern "C" void kernel_main()
                 vga_buffer.print("clear - Clear the screen\n");
                 vga_buffer.print("about - About project\n");
                 vga_buffer.print("version - Show kernel version\n");
+                vga_buffer.print("ticks - Show timer ticks\n");
+                vga_buffer.print("mem - Show allocator status\n");
+                vga_buffer.print("panic - Trigger a test exception\n");
                 vga_buffer.print("echo <text>\n");
             }
             else if (strcmp(command, "clear") == 0)
@@ -63,6 +87,23 @@ extern "C" void kernel_main()
             {
                 vga_buffer.print("Kenel v0.0.4\n");
                 vga_buffer.print("Shell v0.0.1\n");
+            }
+            else if (strcmp(command, "ticks") == 0)
+            {
+                vga_buffer.print("ticks: ");
+                print_uint32(interrupts_get_ticks());
+                vga_buffer.putchar('\n');
+            }
+            else if (strcmp(command, "mem") == 0)
+            {
+                vga_buffer.print("kmalloc remaining: ");
+                print_uint32(kmalloc_remaining());
+                vga_buffer.print(" bytes\n");
+            }
+            else if (strcmp(command, "panic") == 0)
+            {
+                vga_buffer.print("Triggering test exception...\n");
+                __asm__ volatile("ud2");
             }
             else if (strcmp(command, "echo") == 0)
             {
